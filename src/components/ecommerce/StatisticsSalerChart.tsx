@@ -1,8 +1,11 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import ChartTab from "../common/ChartTab";
+// import ChartTab from "../common/ChartTab";
 
-export default function StatisticsChart() {
+import { useState } from "react";
+
+export default function StatisticsSalerChart() {
+  const [showChartSaler, setShowChartSaler] = useState(true);
   const options: ApexOptions = {
     legend: {
       show: false, // Hide legend
@@ -56,25 +59,12 @@ export default function StatisticsChart() {
     tooltip: {
       enabled: true, // Enable tooltip
       x: {
-        format: "dd MMM yyyy", // Format for x-axis tooltip
+        // Format for x-axis tooltip
       },
     },
     xaxis: {
       type: "category", // Category-based x-axis
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: Array.from({ length: 30 }, (_, i) => (i + 1).toString()), // Days 1 to 30
       axisBorder: {
         show: false, // Hide x-axis border
       },
@@ -101,14 +91,15 @@ export default function StatisticsChart() {
     },
   };
 
+  const currentYear = new Date().getFullYear();
   const series = [
     {
-      name: "Sales",
+      date: Array.from({ length: 12 }, (_, i) => {
+        const month = (i + 1).toString().padStart(2, "0");
+        return `${currentYear}-${month}-01`; // Generate dates dynamically for the current year
+      }),
+      name: "Penjualan Item",
       data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
-    },
-    {
-      name: "Revenue",
-      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
     },
   ];
   return (
@@ -116,21 +107,50 @@ export default function StatisticsChart() {
       <div className="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">
         <div className="w-full">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Statistics
+            Penjualan -Bulan ini
           </h3>
           <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-            Target you’ve set for each month
+            Produk Terjual : 23 Produk
           </p>
         </div>
-        <div className="flex items-start w-full gap-3 sm:justify-end">
+        {/* <div className="flex items-start w-full gap-3 sm:justify-end">
           <ChartTab />
-        </div>
+        </div> */}
       </div>
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <div className="min-w-[1000px] xl:min-w-full">
-          <Chart options={options} series={series} type="area" height={310} />
+        <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
+          {showChartSaler && (
+            <Chart options={options} series={series} type="area" height={300} />
+          )}
         </div>
+      </div>
+
+      <div className="flex justify-end text-md pt-4 pb-2">
+        <label
+          htmlFor="toggleChartSaler"
+          className="flex items-center text-gray-800 dark:text-white/90 cursor-pointer">
+          <input
+            id="toggleChartSaler"
+            type="checkbox"
+            className="hidden"
+            checked={showChartSaler}
+            onChange={() => setShowChartSaler(!showChartSaler)}
+          />
+          <span className="w-3 h-3 flex items-center justify-center border  bg-gray-400 rounded-full mr-2">
+            {showChartSaler && (
+              <div className="w-3 h-3 bg-blue-700 rounded-full"></div>
+            )}
+          </span>
+          <div
+            className={
+              showChartSaler
+                ? "text-theme-sm ml-0.5"
+                : "text-gray-400 text-theme-sm ml-0.5"
+            }>
+            Penjualan item
+          </div>
+        </label>
       </div>
     </div>
   );

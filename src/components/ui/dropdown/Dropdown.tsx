@@ -15,7 +15,6 @@ export const Dropdown: React.FC<DropdownProps> = ({
   className = "",
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (

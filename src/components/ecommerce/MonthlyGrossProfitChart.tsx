@@ -5,9 +5,9 @@ import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
 import { useState } from "react";
 
-export default function MonthlySalesChart() {
+export default function MonthlyGrossProfitChart() {
   const options: ApexOptions = {
-    colors: ["#465fff"],
+    colors: ["#FFB22C"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "bar",
@@ -19,7 +19,7 @@ export default function MonthlySalesChart() {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "39%",
+        columnWidth: "50%",
         borderRadius: 5,
         borderRadiusApplication: "end",
       },
@@ -33,20 +33,7 @@ export default function MonthlySalesChart() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: Array.from({ length: 30 }, (_, i) => `${i + 1}`),
       axisBorder: {
         show: false,
       },
@@ -92,6 +79,7 @@ export default function MonthlySalesChart() {
     },
   ];
   const [isOpen, setIsOpen] = useState(false);
+  const [showChartProGross, setShowChartProGross] = useState(true);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -103,9 +91,15 @@ export default function MonthlySalesChart() {
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Monthly Sales
-        </h3>
+        <div className="mb-2">
+          <h3 className=" text-lg font-semibold text-gray-800 dark:text-white/90">
+            Laba Kotor - Bulan Ini
+          </h3>
+          <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
+            Total Laba Kotor: RP 30315000
+          </p>
+        </div>
+
         <div className="relative inline-block">
           <button className="dropdown-toggle" onClick={toggleDropdown}>
             <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
@@ -113,18 +107,15 @@ export default function MonthlySalesChart() {
           <Dropdown
             isOpen={isOpen}
             onClose={closeDropdown}
-            className="w-40 p-2"
-          >
+            className="w-40 p-2">
             <DropdownItem
               onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
+              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
               View More
             </DropdownItem>
             <DropdownItem
               onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
+              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300">
               Delete
             </DropdownItem>
           </Dropdown>
@@ -133,8 +124,47 @@ export default function MonthlySalesChart() {
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">
         <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
-          <Chart options={options} series={series} type="bar" height={180} />
+          {showChartProGross && (
+            <Chart
+              options={{
+                ...options,
+                plotOptions: {
+                  bar: { ...options.plotOptions?.bar, columnWidth: "70%" },
+                },
+              }}
+              series={series}
+              type="bar"
+              height={300}
+            />
+          )}
         </div>
+      </div>
+
+      <div className="flex justify-end text-md pt-4 pb-2">
+        <label
+          htmlFor="toggleChartProfitGross"
+          className="flex items-center text-gray-800 dark:text-white/90 cursor-pointer">
+          <input
+            id="toggleChartProfitGross"
+            type="checkbox"
+            className="hidden"
+            checked={showChartProGross}
+            onChange={() => setShowChartProGross(!showChartProGross)}
+          />
+          <span className="w-3 h-3 flex items-center justify-center border  bg-gray-400 rounded-full mr-2">
+            {showChartProGross && (
+              <div className="w-3 h-3 bg-[#FFB22C] rounded-full"></div>
+            )}
+          </span>
+          <div
+            className={
+              showChartProGross
+                ? "text-theme-sm ml-0.5"
+                : "text-gray-400 text-theme-sm ml-0.5"
+            }>
+            Laba kotor
+          </div>
+        </label>
       </div>
     </div>
   );

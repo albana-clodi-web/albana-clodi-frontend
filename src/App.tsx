@@ -19,6 +19,12 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import NewOrderPage from "./pages/Order/NewOrder";
+import AllOrderPage from "./pages/Order/AllOrder";
+import CancelOrderPage from "./pages/Order/CancelOder";
+import AllProdukPage from "./pages/Produk/AllProduk";
+import AllCustomerPage from "./pages/Customer/AllCustomer";
+import AllReportPage from "./pages/Laporan/AllReport";
 
 export default function App() {
   return (
@@ -35,6 +41,20 @@ export default function App() {
             }
           >
             <Route index path="/" element={<Home />} />
+
+            {/* Order Page */}
+            <Route path="/order" element={<AllOrderPage />} />
+            <Route path="/order/sales_channel" element={<NewOrderPage />} />
+            <Route path="/order/canceled" element={<CancelOrderPage />} />
+
+            {/* Produk Page */}
+            <Route path="/produk" element={<AllProdukPage />} />
+
+            {/* Customer Page */}
+            <Route path="/customer" element={<AllCustomerPage />} />
+
+            {/* Report Page */}
+            <Route path="/report" element={<AllReportPage/>} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />

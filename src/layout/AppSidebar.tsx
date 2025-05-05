@@ -14,9 +14,13 @@ import {
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
+  BoxIcon,
+  GroupIcon,
 } from "../icons";
+import { AiOutlineShoppingCart } from "react-icons/ai";
+import { TbReportAnalytics } from "react-icons/tb";
+import { FaMoneyBillWave } from "react-icons/fa";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;
@@ -30,6 +34,35 @@ const navItems: NavItem[] = [
     icon: <GridIcon />,
     name: "Dashboard",
     subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+  },
+  {
+    icon: <AiOutlineShoppingCart />,
+    name: "Order",
+    subItems: [
+      { name: "Semua Order", path: "/order", pro: false },
+      { name: "Pesanan Baru", path: "/order/sales_channel", pro: false },
+      { name: "Cancel Order", path: "/order/canceled", pro: false },
+    ],
+  },
+  {
+    icon: <BoxIcon />,
+    name: "Produk",
+    subItems: [{ name: "Daftar Produk", path: "/produk", pro: false }],
+  },
+  {
+    icon: <GroupIcon />,
+    name: "Data Customer",
+    subItems: [{ name: "Data Semua Customer", path: "/customer", pro: false }],
+  },
+  {
+    icon: <TbReportAnalytics />,
+    name: "Report",
+    path: "/report",
+  },
+  {
+    icon: <FaMoneyBillWave />,
+    name: "Pengeluaran",
+    path: "/expense",
   },
   {
     icon: <CalenderIcon />,
@@ -175,15 +208,13 @@ const AppSidebar: React.FC = () => {
                 !isExpanded && !isHovered
                   ? "lg:justify-center"
                   : "lg:justify-start"
-              }`}
-            >
+              }`}>
               <span
                 className={`menu-item-icon-size  ${
                   openSubmenu?.type === menuType && openSubmenu?.index === index
                     ? "menu-item-icon-active"
                     : "menu-item-icon-inactive"
-                }`}
-              >
+                }`}>
                 {nav.icon}
               </span>
               {(isExpanded || isHovered || isMobileOpen) && (
@@ -206,15 +237,13 @@ const AppSidebar: React.FC = () => {
                 to={nav.path}
                 className={`menu-item group ${
                   isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
-                }`}
-              >
+                }`}>
                 <span
                   className={`menu-item-icon-size ${
                     isActive(nav.path)
                       ? "menu-item-icon-active"
                       : "menu-item-icon-inactive"
-                  }`}
-                >
+                  }`}>
                   {nav.icon}
                 </span>
                 {(isExpanded || isHovered || isMobileOpen) && (
@@ -234,8 +263,7 @@ const AppSidebar: React.FC = () => {
                   openSubmenu?.type === menuType && openSubmenu?.index === index
                     ? `${subMenuHeight[`${menuType}-${index}`]}px`
                     : "0px",
-              }}
-            >
+              }}>
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
                   <li key={subItem.name}>
@@ -245,8 +273,7 @@ const AppSidebar: React.FC = () => {
                         isActive(subItem.path)
                           ? "menu-dropdown-item-active"
                           : "menu-dropdown-item-inactive"
-                      }`}
-                    >
+                      }`}>
                       {subItem.name}
                       <span className="flex items-center gap-1 ml-auto">
                         {subItem.new && (
@@ -255,8 +282,7 @@ const AppSidebar: React.FC = () => {
                               isActive(subItem.path)
                                 ? "menu-dropdown-badge-active"
                                 : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
-                          >
+                            } menu-dropdown-badge`}>
                             new
                           </span>
                         )}
@@ -266,8 +292,7 @@ const AppSidebar: React.FC = () => {
                               isActive(subItem.path)
                                 ? "menu-dropdown-badge-active"
                                 : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
-                          >
+                            } menu-dropdown-badge`}>
                             pro
                           </span>
                         )}
@@ -285,7 +310,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-0 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
         ${
           isExpanded || isMobileOpen
             ? "w-[290px]"
@@ -296,17 +321,15 @@ const AppSidebar: React.FC = () => {
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+      onMouseLeave={() => setIsHovered(false)}>
       <div
-        className={`py-8 flex ${
+        className={`py-8 px-5 flex ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-        }`}
-      >
+        }`}>
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img
+              {/* <img
                 className="dark:hidden"
                 src="/images/logo/logo.svg"
                 alt="Logo"
@@ -319,19 +342,38 @@ const AppSidebar: React.FC = () => {
                 alt="Logo"
                 width={150}
                 height={40}
-              />
+              /> */}
+              <div className="flex items-center">
+                <img
+                  className="dark:block mx-2"
+                  src="/images/logo/albana-clodi-logo.svg"
+                  alt="Logo"
+                  width={80}
+                  height={30}
+                />
+                <h2 className="font-mono font-medium text-2xl text-purple-950 dark:text-white">
+                  AlbanaGrosir
+                </h2>
+              </div>
             </>
           ) : (
+            // <img
+            //   src="/images/logo/logo-icon.svg"
+            //   alt="Logo"
+            //   width={32}
+            //   height={32}
+            // />
             <img
-              src="/images/logo/logo-icon.svg"
+              className="dark:block"
+              src="/images/logo/albana-clodi-logo.svg"
               alt="Logo"
-              width={32}
-              height={32}
+              width={80}
+              height={30}
             />
           )}
         </Link>
       </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      <div className="flex flex-col overflow-y-auto duration-300 ease-linear custom-scrollbar px-5">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>
@@ -340,8 +382,7 @@ const AppSidebar: React.FC = () => {
                   !isExpanded && !isHovered
                     ? "lg:justify-center"
                     : "justify-start"
-                }`}
-              >
+                }`}>
                 {isExpanded || isHovered || isMobileOpen ? (
                   "Menu"
                 ) : (
@@ -356,8 +397,7 @@ const AppSidebar: React.FC = () => {
                   !isExpanded && !isHovered
                     ? "lg:justify-center"
                     : "justify-start"
-                }`}
-              >
+                }`}>
                 {isExpanded || isHovered || isMobileOpen ? (
                   "Others"
                 ) : (
@@ -368,7 +408,7 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
+        {/* {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null} */}
       </div>
     </aside>
   );
