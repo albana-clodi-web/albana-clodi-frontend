@@ -73,6 +73,7 @@ export default function TableProduk() {
   const [isChecked, setIsChecked] = useState(false);
   const [selectedItem, setSelectItems] = useState<number[]>([]);
 
+  // State for Checkbox and Multiple Checkbox
   useEffect(() => {
     if (isChecked) {
       setSelectItems(tableData.map((val) => val.id));
@@ -88,6 +89,8 @@ export default function TableProduk() {
       setSelectItems((prev) => prev.filter((item) => item !== id));
     }
   }
+
+  // State for button Filter
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -218,8 +221,8 @@ export default function TableProduk() {
                 </TableCell>
                 <TableCell className="px-4 text-gray-500 text-theme-sm dark:text-gray-40">
                   <div className="flex gap-2 items-stretch">
-                    <FaEdit className="w-6 h-5 dark:text-amber-300 text-amber-400" />
-                    <AiFillDelete className="w-6 h-5 dark:text-red-500 text-red-600" />
+                    <FaEdit className="w-6 h-5 text-amber-500" />
+                    <AiFillDelete className="w-6 h-5  text-red-700" />
                   </div>
                 </TableCell>
               </TableRow>
