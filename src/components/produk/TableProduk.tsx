@@ -12,13 +12,13 @@ import { useCallback, useEffect, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { AiFillDelete } from "react-icons/ai";
 import { getProducts } from "../../service/product";
-import { type ProductResponse } from "../../service/product";
+import { type ArrayProduct } from "../../service/product";
 import { Link } from "react-router";
 
 export default function TableProduk() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [products, setProducts] = useState<ProductResponse[] | null>(null);
+  const [products, setProducts] = useState<ArrayProduct[] | null>(null);
 
   const [isChecked, setIsChecked] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string[]>([]);
@@ -27,7 +27,7 @@ export default function TableProduk() {
   useEffect(() => {
     // setSelectedItem(isChecked ? products?.map((val) => val.id) : []);
     if (isChecked && products) {
-      setSelectedItem(products.map((val) => val.id));
+      setSelectedItem(products.map((val) => val.product.id));
     } else {
       setSelectedItem([]);
     }
@@ -44,8 +44,8 @@ export default function TableProduk() {
     const fetchProducts = async () => {
       setLoading(true);
       const result = await getProducts();
-      if (result.success && Array.isArray(result.responseObject)) {
-        setProducts(result.responseObject);
+      if (result.success && result.responseObject) {
+        setProducts(result.responseObject.data);
       } else {
         setMessage(result.message);
       }
@@ -61,6 +61,7 @@ export default function TableProduk() {
   }, []);
 
   console.log(loading);
+  console.log(products);
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
@@ -121,14 +122,14 @@ export default function TableProduk() {
 
           <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
             {products && products.length > 0 ? (
-              products?.map((produk) => (
-                <TableRow key={produk.id}>
+              products.map((produk, index) => (
+                <TableRow key={index}>
                   <TableCell className="px-5 py-4 sm:px-5 text-start">
                     <Checkbox
-                      id={produk.id.toString()}
-                      checked={selectedItem.includes(produk.id)}
+                      id={produk.product.id}
+                      checked={selectedItem.includes(produk.product.id)}
                       onChange={(checked) =>
-                        checkboxHandler(checked, produk.id)
+                        checkboxHandler(checked, produk.product.id)
                       }
                     />
                   </TableCell>
@@ -139,36 +140,34 @@ export default function TableProduk() {
                       </div>
                       <div>
                         <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                          {produk.name}
+                          {produk.product.name}
                         </span>
                         <span className="block text-gray-500 text-theme-xs dark:text-gray-400">
-                          {produk.productVariants[0].productPrices[0].normal}
+                          {produk.price.normal}
                         </span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {produk.productVariants[0].stock}
+                    {produk.variant.stock}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    <div className="flex -space-x-2">
-                      {produk.productVariants.length}
-                    </div>
+                    <div className="flex -space-x-2">1</div>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     <Badge size="sm" color={"success"}>
-                      {produk.type}
+                      {produk.product.type}
                     </Badge>
                   </TableCell>
                   <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {produk.description}
+                    {produk.product.description}
                   </TableCell>
                   <TableCell className="px-4 text-gray-500 text-theme-sm dark:text-gray-40">
                     <div>Tidak Ada Harga Grosir</div>
                   </TableCell>
                   <TableCell className="px-4 text-gray-500 text-theme-sm dark:text-gray-40">
                     <div className="flex gap-2 items-stretch">
-                      <Link to={`/produk/edit/${produk.id}`}>
+                      <Link to={`/produk/edit/${produk.product.id}`}>
                         <FaEdit className="w-6 h-5 text-amber-500 cursor-pointer" />
                       </Link>
 

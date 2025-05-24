@@ -8,11 +8,14 @@ const ProdukPageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div className="flex gap-2 items-center justify-between">
-        <IoChevronBackSharp className="w-10 h-10 dark:text-amber-50 text-gray-500 " />
+        <Link to={"/produk"}>
+          <button className="p-1.5 rounded-md bg-gray-200 hover:bg-gray-400 dark:hover:bg-amber-700 transition-colors">
+            <IoChevronBackSharp className="w-auto h-7 dark:text-amber-50 text-gray-500" />
+          </button>
+        </Link>
         <h2
           className="text-xl font-semibold text-gray-800 dark:text-white/90"
-          x-text="pageName"
-        >
+          x-text="pageName">
           {pageTitle}
         </h2>
       </div>
@@ -22,8 +25,7 @@ const ProdukPageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
           <li>
             <Link
               className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-              to="/"
-            >
+              to="/">
               Home
               <svg
                 className="stroke-current"
@@ -31,8 +33,7 @@ const ProdukPageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
                 height="16"
                 viewBox="0 0 17 16"
                 fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+                xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
                   stroke=""
@@ -46,8 +47,7 @@ const ProdukPageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
           <li>
             <Link
               className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400"
-              to="/produk"
-            >
+              to="/produk">
               Halaman Produk
               <svg
                 className="stroke-current"
@@ -55,8 +55,7 @@ const ProdukPageBreadcrumb: React.FC<BreadcrumbProps> = ({ pageTitle }) => {
                 height="16"
                 viewBox="0 0 17 16"
                 fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+                xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M6.0765 12.667L10.2432 8.50033L6.0765 4.33366"
                   stroke=""

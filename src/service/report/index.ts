@@ -41,6 +41,33 @@ export type ReportAll = {
   reportOrders: ReportOrders;
 };
 
+export type PaymentTransaction = {
+  count: number;
+  total: number;
+  name: string;
+};
+
+export type ProductSold = Record<string, number>;
+
+type ResponseProdcutSold = {
+  success: boolean;
+  message: string;
+  responseObject?: {
+    totalProductsSold: number;
+    produk_terjual_per_hari: ProductSold;
+  };
+  statusCode?: number;
+};
+
+type ResponsePaymentTransaction = {
+  success: boolean;
+  message: string;
+  responseObject?: {
+    payment_methods: PaymentTransaction[];
+  };
+  statusCode?: number;
+};
+
 type ResponseSucces = {
   success: boolean;
   message: string;
@@ -76,7 +103,64 @@ export async function getReport(query?: ExpenseQuery): Promise<ResponseSucces> {
       responseObject: allReport,
     };
   } catch (error) {
+    let message = "Terjadi kesalahan saat mengambil Data";
+
+    if (axios.isAxiosError(error)) {
+      message =
+        error.response?.data?.message ||
+        (error.request ? "Tidak dapat menghubungi server" : error.message);
+    } else {
+      message = (error as Error).message;
+    }
+
+    return {
+      success: false,
+      message,
+    };
+  }
+}
+
+export async function getPaymentTransaction(
+  query?: ExpenseQuery
+): Promise<ResponsePaymentTransaction> {
+  try {
+    const { data } = await axios.get(
+      `${apiUrl}/reports/payments-transactions`,
+      {
+        params: query,
+      }
+    );
+
+    return data;
+  } catch (error) {
     let message = "Terjadi kesalahan saat mengambil produk";
+
+    if (axios.isAxiosError(error)) {
+      message =
+        error.response?.data?.message ||
+        (error.request ? "Tidak dapat menghubungi server" : error.message);
+    } else {
+      message = (error as Error).message;
+    }
+
+    return {
+      success: false,
+      message,
+    };
+  }
+}
+
+export async function ProductSolds(
+  query?: ExpenseQuery
+): Promise<ResponseProdcutSold> {
+  try {
+    const { data } = await axios.get(`${apiUrl}/reports/products-sold`, {
+      params: query,
+    });
+
+    return data;
+  } catch (error) {
+    let message = "Terjadi kesalahan saat mengambil report produk terjual";
 
     if (axios.isAxiosError(error)) {
       message =

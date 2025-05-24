@@ -1,9 +1,104 @@
-import { useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
+import OrderCard from "../../components/order/card/OrderCard";
+import { TbFilterDiscount } from "react-icons/tb";
+import Button from "../../components/ui/button/Button";
+import { useNavigate } from "react-router";
+import SearchOrder from "../../components/order/filter/SearchOrder";
+import FilterOrder from "../../components/order/filter/FilterOrder";
+import FilterStatusOrder from "../../components/order/filter/FilterStatusOrder";
+import { DownloadIcon } from "../../icons";
+import { FaPlus } from "react-icons/fa6";
+import OptionDropdownOrder from "../../components/order/dropdown/OptionDropdownOrder";
+import FilterOrderDropdown from "../../components/order/filter/FilterOrderDropdown";
+
+type FilterState = {
+  pembayaran: string;
+  pengiriman: string;
+  admin: string;
+  bank: string;
+  kurir: string;
+  pickup: string;
+  salesChannels: string;
+  kategoriCustomer: string;
+  gudang: string;
+  produk: string;
+  printLabel: string;
+  tanggal: string;
+};
 
 export default function AllOrderPage() {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [keyword, setKeyword] = useState<string>("");
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [filter, setFilter] = useState<boolean>(false);
+  const [selectedFilter, setSelectedFilter] = useState<string>("");
+
+  const [filterOrder, setFilterOrder] = useState<FilterState>({
+    pembayaran: "",
+    pengiriman: "",
+    admin: "",
+    bank: "",
+    kurir: "",
+    pickup: "",
+    salesChannels: "",
+    kategoriCustomer: "",
+    gudang: "",
+    produk: "",
+    printLabel: "semua",
+    tanggal: "order",
+  });
+
+  const navigate = useNavigate();
+
+  // Handle Search and Filter Query
+  const handleSearchAndFilter = useCallback(
+    (keyword: string, filter: FilterState) => {
+      const params = new URLSearchParams();
+      // for search
+      params.set("keyword", keyword.toLowerCase());
+
+      // for filter
+      params.set("pembayaran", filter.pembayaran);
+      params.set("pengiriman", filter.pengiriman);
+      params.set("admin", filter.admin);
+      params.set("bank", filter.bank);
+      params.set("kurir", filter.kurir);
+      params.set("pickup", filter.pickup);
+      params.set("salesChannels", filter.salesChannels);
+      params.set("kategoriCustomer", filter.kategoriCustomer);
+      params.set("gudang", filter.gudang);
+      params.set("produk", filter.produk);
+      params.set("printLabel", filter.printLabel);
+      params.set("tanggal", filter.tanggal);
+
+      navigate(`?${params.toString()}`);
+    },
+    [navigate]
+  );
+
+  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedFilter(event.target.value);
+    // 🔍 Optional: panggil fungsi filter data berdasarkan nilai ini
+    console.log("Filter dipilih:", event.target.value);
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <div>
       <PageMeta
@@ -11,47 +106,92 @@ export default function AllOrderPage() {
         description="Pusat kontrol untuk semua transaksi dan pesanan pelanggan"
       />
       <PageBreadcrumb pageTitle="Halaman Order" />
+      <hr className="my-6 border-gray-300 dark:border-gray-700" />
 
-      <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
-        <div className="lg:block mb-4">
-          <form>
-            <div className="relative">
-              <span className="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
-                <svg
-                  className="fill-gray-500 dark:fill-gray-400"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
-                    fill=""
-                  />
-                </svg>
-              </span>
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Cari Order Barang"
-                className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800  dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
-              />
-            </div>
-          </form>
+      <div className="py-2 bg-gray-50">
+        <div
+          className={`flex flex-wrap gap-2 ${
+            window.innerWidth <= 768 ? "overflow-x-auto" : ""
+          }`}>
+          <FilterStatusOrder
+            selectedStatuses={selectedStatuses}
+            onChange={setSelectedStatuses}
+          />
         </div>
 
-        <div className="mx-auto w-full max-w-[630px] text-center mt-2">
-          <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-            Card Title Here
-          </h3>
+        {/* Search and Filter Row */}
+        <div className="flex flex-wrap items-center gap-2 mb-4 mt-3">
+          <div className="relative">
+            <FilterOrderDropdown />
+          </div>
+          <div className="flex-1">
+            <SearchOrder
+              onSearch={() => handleSearchAndFilter(keyword, filterOrder)}
+              keyword={keyword}
+              keywordChange={setKeyword}
+            />
+          </div>
+          <div className="flex gap-2 ml-auto">
+            {/* <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded">
+              <FaPlus size={14} /> Tambah Order
+            </button> */}
+            <Link to={"/order/form_add_order"}>
+              <div className="mx-auto w-full flex justify-start gap-3">
+                <Button
+                  size="md"
+                  variant="primary"
+                  className="flex-1"
+                  startIcon={<FaPlus className="size-5 text-white" />}>
+                  Tambah Order
+                </Button>
+              </div>
+            </Link>
+            <Button
+              size="md"
+              variant="outline"
+              startIcon={<TbFilterDiscount className="size-5 text-blue-700" />}
+              onClick={() => setFilter((prev) => !prev)}>
+              Filter
+            </Button>
 
-          <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
-            Start putting content on grids or panels, you can also use different
-            combinations of grids.Please check out the dashboard and other pages
-          </p>
+            <Button
+              size="md"
+              variant="outline"
+              startIcon={<DownloadIcon className="size-5 text-blue-700" />}>
+              Download
+            </Button>
+            <OptionDropdownOrder />
+          </div>
+        </div>
+
+        <div className="mx-auto w-full text-center mt-2">
+          {filter ? (
+            <FilterOrder
+              filter={filterOrder}
+              setFilter={setFilterOrder}
+              onFilter={() => handleSearchAndFilter(keyword, filterOrder)}
+            />
+          ) : null}
+
+          {/* Info */}
+          <div className="flex justify-between items-center mt-6">
+            <p className="text-2xl font-medium">279 order ditemukan</p>
+            <div className="flex justify-between items-center bg-white p-3.5 rounded-lg">
+              <p className="text-md font-light">
+                Sisa kuota order:{" "}
+                <span className="text-green-600 font-semibold">826</span>
+              </p>
+              <span className="text-gray-400 mx-2">|</span>
+              <Link to="/profile">
+                <span className="text-blue-600 text-md font-semibold">
+                  Lihat Detail
+                </span>
+              </Link>
+            </div>
+          </div>
+        </div>
+        <div>
+          <OrderCard />
         </div>
       </div>
     </div>

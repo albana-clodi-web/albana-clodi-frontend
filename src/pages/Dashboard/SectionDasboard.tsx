@@ -4,8 +4,10 @@ import { IoIosArrowForward } from "react-icons/io";
 import { IoIosWallet } from "react-icons/io";
 import Button from "../../components/ui/button/Button";
 import IconsCourier from "../../icons/choose-courier.svg";
+import { Link, useNavigate } from "react-router";
 
 function SectionDasboard() {
+  const navigate = useNavigate();
   const orders = [
     {
       id: 1,
@@ -117,7 +119,10 @@ function SectionDasboard() {
           </div>
         ))}
         <div className="flex items-center justify-end mt-2 font-semibold text-blue-600 my-2.5">
-          <p className="text-theme-sm font-semibold">Lihat Semua</p>
+          <Link to={"/order"}>
+            <p className="text-theme-sm font-semibold">Lihat Semua</p>
+          </Link>
+
           <IoIosArrowForward />
         </div>
       </div>
@@ -140,7 +145,7 @@ function SectionDasboard() {
         <div className="flex items-center mt-4">
           <Button
             className="w-full h-9 bg-blue-500 text-white font-normal py-2 rounded-lg"
-            onClick={() => console.log("Pilih Kurir clicked!")}>
+            onClick={() => navigate("/profile")}>
             Pilih Kurir
           </Button>
         </div>

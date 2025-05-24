@@ -8,13 +8,26 @@ import { GiMoneyStack, GiProfit, GiTakeMyMoney } from "react-icons/gi";
 import { BiCalculator, BiSolidDiscount } from "react-icons/bi";
 import { LuPackageOpen } from "react-icons/lu";
 import StatisticsChart from "../../components/ecommerce/StatisticsSalerChart";
-import RecentOrders from "../../components/ecommerce/RecentOrders";
-import { getReport, type ReportAll } from "../../service/report";
+import {
+  getPaymentTransaction,
+  getReport,
+  PaymentTransaction,
+  ProductSold,
+  ProductSolds,
+  type ReportAll,
+} from "../../service/report";
 import FilterReport from "../../components/laporan/filter/FilterReport";
+import PaymentTransactions from "../../components/laporan/PaymentTransactionTable";
+import ProductSoldChart from "../../components/laporan/SalesChart";
 
 export default function AllReportPage() {
   // const inputRef = useRef<HTMLInputElement>(null);
   const [report, setReport] = useState<ReportAll | null>(null);
+  const [paymentTransaction, setPaymentTransaction] = useState<
+    PaymentTransaction[] | null
+  >(null);
+  const [productSold, setProductSold] = useState<ProductSold | null>(null);
+  const [totalProductSold, setTotalProductSold] = useState<number>(0);
   const [message, setMessage] = useState("");
 
   const [startDate, setStartDate] = useState<string>("");
@@ -26,10 +39,6 @@ export default function AllReportPage() {
   useEffect(() => {
     const fetchReport = async () => {
       const result = await getReport({ year, month, endDate, startDate });
-      if (endDate || startDate) {
-        setMonth("");
-        setYear("");
-      }
       if (result.success && result.responseObject) {
         setReport(result.responseObject);
         setMessage(result.message);
@@ -40,10 +49,40 @@ export default function AllReportPage() {
     fetchReport();
   }, [year, month, endDate, startDate]);
 
-  console.log(report);
+  useEffect(() => {
+    const fetchPaymentTransaction = async () => {
+      const result = await getPaymentTransaction({
+        year,
+        month,
+        endDate,
+        startDate,
+      });
+      if (result.success && result.responseObject) {
+        setPaymentTransaction(result.responseObject.payment_methods);
+        setMessage(result.message);
+      } else {
+        setMessage(result.message);
+      }
+    };
+    const fetchProductSold = async () => {
+      const resultProduct = await ProductSolds({
+        year,
+        month,
+        endDate,
+        startDate,
+      });
+      if (resultProduct.success && resultProduct.responseObject) {
+        setProductSold(resultProduct.responseObject.produk_terjual_per_hari);
+        setTotalProductSold(resultProduct.responseObject.totalProductsSold);
+        setMessage(resultProduct.message);
+      } else {
+        setMessage(resultProduct.message);
+      }
+    };
+    fetchProductSold();
+    fetchPaymentTransaction();
+  }, [year, month, endDate, startDate]);
   console.log(message);
-  console.log("startDate" + startDate);
-  console.log("endDate" + endDate);
 
   return (
     <div>
@@ -62,6 +101,9 @@ export default function AllReportPage() {
           setEndDate={setEndDate}
           setStartDate={setStartDate}
         />
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-6">
+          {report?.reportExpenses.filterInfo}
+        </h2>
         <Carousel>
           {/* Slide 1 */}
           <div className="py-3 mr-5">
@@ -165,13 +207,18 @@ export default function AllReportPage() {
 
         <div className="grid grid-cols-12 gap-4 md:gap-6 mt-10">
           <div className="col-span-12">
-            <StatisticsChart />
+            <ProductSoldChart
+              productsSold={productSold}
+              totalProductsSold={totalProductSold}
+              month={month}
+              year={year}
+            />
           </div>
           <div className="col-span-12">
             <StatisticsChart />
           </div>
           <div className="col-span-12 xl:col-span-7">
-            <RecentOrders />
+            <PaymentTransactions data={paymentTransaction} />
           </div>
         </div>
       </div>

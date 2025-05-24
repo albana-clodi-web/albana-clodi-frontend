@@ -22,12 +22,13 @@ export default function FilterReport({
     <div className="flex gap-3 mb-4 max-md:flex-col">
       {/* Dropdown Filter Type */}
       <select
+        defaultValue={"By Date"}
         value={filterType}
         onChange={(e) => setFilterType(e.target.value)}
         className="px-3 rounded border border-gray-300 bg-white text-sm max-md:p-2"
       >
-        <option>By Date</option>
-        <option>By Month</option>
+        <option value={"By Date"}>By Date</option>
+        <option value={"By Month"}>By Month</option>
       </select>
 
       {/* Show Date Range if By Date */}
@@ -42,8 +43,9 @@ export default function FilterReport({
               const month = String(firstDate.getMonth() + 1).padStart(2, "0");
               const day = String(firstDate.getDate()).padStart(2, "0");
               const formatted = `${year}-${month}-${day}`;
+              setYear("");
+              setMonth("");
               setStartDate(formatted);
-              console.log(formatted);
             }}
           />
           <DatePicker
@@ -55,8 +57,9 @@ export default function FilterReport({
               const month = String(firstDate.getMonth() + 1).padStart(2, "0");
               const day = String(firstDate.getDate()).padStart(2, "0");
               const formatted = `${year}-${month}-${day}`;
+              setYear("");
+              setMonth("");
               setEndDate(formatted);
-              console.log(formatted);
             }}
           />
         </>
@@ -69,7 +72,11 @@ export default function FilterReport({
             className="px-3 py-2 rounded border border-gray-300 bg-white text-sm"
             defaultValue="January"
             value={month}
-            onChange={(e) => setMonth(e.target.value)}
+            onChange={(e) => {
+              setStartDate("");
+              setEndDate("");
+              setMonth(e.target.value);
+            }}
           >
             <option value="1">January</option>
             <option value="2">February</option>
@@ -88,7 +95,11 @@ export default function FilterReport({
             className="px-3 py-2 rounded border border-gray-300 bg-white text-sm"
             defaultValue={new Date().getFullYear()}
             value={year}
-            onChange={(e) => setYear(e.target.value)}
+            onChange={(e) => {
+              setStartDate("");
+              setEndDate("");
+              setYear(e.target.value);
+            }}
           >
             {Array.from(
               { length: 10 },

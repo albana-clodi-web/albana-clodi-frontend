@@ -3,16 +3,101 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { useCallback, useEffect, useState } from "react";
+import {
+  editUserProfile,
+  getUserProfile,
+  RequestEditUserProfile,
+  UserProfile,
+} from "../../service/profile";
+import toast, { Toaster } from "react-hot-toast";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
+
+  const [formData, setFormData] = useState<RequestEditUserProfile>({
+    fullname: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phoneNumber: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({ passwordMismatch: false });
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  const token = localStorage.getItem("token");
+
+  const fetchUserProfile = useCallback(async (token: string) => {
+    const result = await getUserProfile(token);
+    if (result.success && result.responseObject) {
+      const { fullname, email } = result.responseObject;
+      setUserProfile(result.responseObject);
+      setFormData((prev) => ({
+        ...prev,
+        fullname: fullname || "",
+        email: email || "",
+        phoneNumber: "",
+        password: "",
+        confirmPassword: "",
+      }));
+    }
+  }, []);
+
+  const validateForm = useCallback(() => {
+    if (!formData.fullname || !formData.email || !formData.phoneNumber) {
+      toast.error("Nama, Email, atau No Hp belum terisi", {
+        style: { marginTop: "10vh", zIndex: 100000 },
+      });
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Password Tidak Sama", {
+        style: { marginTop: "10vh", zIndex: 100000 },
+      });
+      setErrors({ passwordMismatch: true });
+      return false;
+    }
+    return true;
+  }, [formData]);
+
+  const handleSave = useCallback(async () => {
+    if (!validateForm()) return;
+
+    const { message } = await editUserProfile(formData);
+    toast.success(message, {
+      style: { marginTop: "10vh", zIndex: 100000 },
+    });
+
+    if (token) {
+      fetchUserProfile(token);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      password: "",
+      confirmPassword: "",
+    }));
+
     closeModal();
-  };
+  }, [formData, token, fetchUserProfile, closeModal, validateForm]);
+
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchUserProfile(token);
+    }
+  }, [token, fetchUserProfile]);
+
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+      <Toaster />
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
@@ -22,46 +107,34 @@ export default function UserInfoCard() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                First Name
+                Nama Lengkap
+              </p>
+              <p>{userProfile?.fullname}</p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Alamat Email
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Musharof
+                {userProfile?.email}
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Last Name
+                Nomor Telepon
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Chowdhury
+                08965517892
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Email address
+                Role
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Bio
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Team Manager
+                {userProfile?.role}
               </p>
             </div>
           </div>
@@ -91,6 +164,7 @@ export default function UserInfoCard() {
       </div>
 
       <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
+        <Toaster />
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
@@ -100,83 +174,110 @@ export default function UserInfoCard() {
               Update your details to keep your profile up-to-date.
             </p>
           </div>
-          <form className="flex flex-col">
-            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
-              <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Facebook</Label>
-                    <Input
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>X.com</Label>
-                    <Input type="text" value="https://x.com/PimjoHQ" />
-                  </div>
-
-                  <div>
-                    <Label>Linkedin</Label>
-                    <Input
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Instagram</Label>
-                    <Input type="text" value="https://instagram.com/PimjoHQ" />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-7">
+          <div className="flex flex-col">
+            <div className="custom-scrollbar h-auto overflow-y-auto px-2 pb-3">
+              <div className="mt-2">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Personal Information
                 </h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
-                    <Input type="text" value="Musharof" />
+                    <Label>Nama Lengkap</Label>
+                    <Input
+                      name="fullname"
+                      type="text"
+                      value={formData?.fullname}
+                      onChange={handleChange}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
-                    <Input type="text" value="Chowdhury" />
+                    <Label>Email</Label>
+                    <Input
+                      name="email"
+                      type="text"
+                      value={formData?.email}
+                      onChange={handleChange}
+                    />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address</Label>
-                    <Input type="text" value="randomuser@pimjo.com" />
+                    <Label>
+                      Password<span className="text-error-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        name="password"
+                        placeholder="Enter your password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData?.password}
+                        onChange={handleChange}
+                        error={errors.passwordMismatch}
+                      />
+                      <span
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                      >
+                        {showPassword ? (
+                          <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                        ) : (
+                          <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                        )}
+                      </span>
+                    </div>
+                    {errors.passwordMismatch && (
+                      <p className="text-sm text-red-500 mt-1">
+                        Password tidak cocok
+                      </p>
+                    )}
                   </div>
-
+                  <div className="col-span-2 lg:col-span-1">
+                    <Label>
+                      Password Confirm<span className="text-error-500">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        name="confirmPassword"
+                        placeholder="Enter your password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData?.confirmPassword}
+                        onChange={handleChange}
+                      />
+                      <span
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                      >
+                        {showPassword ? (
+                          <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                        ) : (
+                          <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                        )}
+                      </span>
+                    </div>
+                  </div>
                   <div className="col-span-2 lg:col-span-1">
                     <Label>Phone</Label>
-                    <Input type="text" value="+09 363 398 46" />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label>Bio</Label>
-                    <Input type="text" value="Team Manager" />
+                    <Input
+                      name="phoneNumber"
+                      min="0"
+                      type="number"
+                      value={formData?.phoneNumber}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+            <div className="flex items-center gap-3 px-2 lg:justify-end mt-4">
               <Button size="sm" variant="outline" onClick={closeModal}>
                 Close
               </Button>
               <Button size="sm" onClick={handleSave}>
-                Save Changes
+                Simpan Perubahan
               </Button>
             </div>
-          </form>
+          </div>
         </div>
       </Modal>
     </div>

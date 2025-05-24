@@ -1,5 +1,6 @@
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
+const token = localStorage.getItem("token");
 
 type ProductPrice = {
   normal: number;
@@ -41,7 +42,14 @@ type CreateProductRequest = {
   productVariants: ProductVariant[];
 };
 
-export type ProductResponse = {
+type Category = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type ProductNew = {
   id: string;
   categoryId: string;
   name: string;
@@ -49,54 +57,55 @@ export type ProductResponse = {
   description: string;
   weight: number;
   isPublish: boolean;
-  createdAt: string;
+  createdAt: string; // atau Date
   updatedAt: string;
-  category: {
-    id: string;
-    name: string;
-    createdAt: string;
-    updatedAt: string;
+  category: Category;
+};
+
+type Variant = {
+  id: string;
+  productId: string;
+  sku: string;
+  stock: number;
+  size: string;
+  color: string;
+  imageUrl: string;
+  barcode: string | null;
+  createdAt: string; // atau Date
+  updatedAt: string;
+};
+
+type Price = {
+  id: string;
+  productVariantId: string;
+  normal: number;
+  buy: number;
+  reseller: number;
+  agent: number;
+  member: number;
+  createdAt: string; // atau Date
+  updatedAt: string;
+};
+
+type ProductResponse = {
+  data: ArrayProduct[];
+  meta: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
   };
-  productVariants: {
-    id: string;
-    productId: string;
-    sku: string;
-    stock: number;
-    size: string;
-    color: string;
-    imageUrl: string;
-    file?: File;
-    barcode: string;
-    createdAt: string;
-    updatedAt: string;
-    productPrices: {
-      id: string;
-      productVariantId: string;
-      normal: number;
-      buy: number;
-      reseller: number;
-      agent: number;
-      member: number;
-      createdAt: string;
-      updatedAt: string;
-    }[];
-    ProductWholesaler: {
-      id: string;
-      productVariantId: string;
-      lowerLimitItem: number;
-      upperLimitItem: number;
-      unitPrice: number;
-      wholesalerPrice: number;
-      createdAt: string;
-      updatedAt: string;
-    }[];
-  }[];
+};
+
+export type ArrayProduct = {
+  product: ProductNew;
+  variant: Variant;
+  price: Price;
 };
 
 type ResponseSucces = {
   success: boolean;
   message: string;
-  responseObject?: CreateProductRequest | ProductResponse[];
+  responseObject?: ProductResponse;
   statusCode?: number;
 };
 
@@ -138,16 +147,13 @@ export async function createProduct(
 
 export async function getProducts(): Promise<ResponseSucces> {
   try {
-    const response = await axios.get(`${apiUrl}/products`, {
+    const { data } = await axios.get(`${apiUrl}/products`, {
       headers: {
         "ngrok-skip-browser-warning": "true",
+        Authorization: `Bearer ${token}`,
       },
     });
-    return {
-      success: true,
-      message: response.data.message ?? "Produk berhasil Dimuat",
-      responseObject: response.data.responseObject.data,
-    };
+    return data;
   } catch (error) {
     let message = "Terjadi kesalahan saat mengambil produk";
 
